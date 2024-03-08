@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue 3 Example</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.8/dist/vue.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-значение_хэша" crossorigin="anonymous" />
+
+
+</head>
+<body>
+
+<div id="app">
+    <div class="card ">
+        <div class="content">
+          <div class="back " >
+            <div class="back-content ">
+                
+              
+                <div>
+                    <div v-if="currentWindow === 1" class="container">
+                        <h2>Добавление</h2>
+                        <button class="buttonnew" @click="showWindow(4)">
+                            <span class="circle1"></span>
+                            <span class="circle2"></span>
+                            <span class="circle3"></span>
+                            <span class="circle4"></span>
+                            <span class="circle5"></span>
+                            <span class="text">Новый товар</span>
+                        </button>
+                        <!-- <button @click="showWindow(4)">Новый товар</button> -->
+                        <div class="product-zone" style="margin-left: 10px;">
+                            <div v-for="product in products" :key="product.id" class="product-item">
+                                <div class="product-list">
+                                    <div class="product-name-container">
+                                        <p>{{ product.name }}</p>
+                                    </div>
+                                    <div class="counter">
+                                        <button @click="decrement(product)">-</button>
+                                        <span style="padding: 0px 10px 0px 10px;">{{ product.count }}</span>
+                                        <button @click="increment(product)">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="buttonnew"  style="margin: 10px;" @click="submitUpdates">
+                            <span class="circle1"></span>
+                            <span class="circle2"></span>
+                            <span class="circle3"></span>
+                            <span class="circle4"></span>
+                            <span class="circle5"></span>
+                            <span class="text">ПОДТВЕРДИТЬ</span>
+                        </button>
+                        <!-- <button @click="submitUpdates" style="color: rgb(0, 255, 0); margin: 10px; ">ПОДТВЕРДИТЬ</button> -->
+                    </div>
+            
+                    <div v-else-if="currentWindow === 2" class="container" style="margin-bottom: 15px;">
+                        <h2>Отчёты</h2>
+                        <div style="display: flex;align-items: center;">
+                            <i class="far fa-calendar" @click="openCalendar"></i>
+                            <div class="textInputWrapper">
+                                <input placeholder="Выберите дату" type="number"  class="textInput" id="calendar" @show-order-details="showOrderDetails" readonly>
+                            </div>
+                            <!-- <input type="number" id="calendar" placeholder="Выберите дату" readonly > -->
+                        </div>
+                        <order-list :orders="orders" @show-order-details="showOrderDetails" class="product-zone"></order-list>
+                    </div>
+            
+                    <div v-else-if="currentWindow === 3" class="container">
+                        <h2>Покупка</h2>
+                        <div style="display: flex;">
+                            <label>
+                                <input type="checkbox" v-model="weightCheckbox" @change="handleChange(1)">
+                                Вес
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="colorCheckbox" @change="handleChange(2)">
+                                Цвет
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="expiryDateCheckbox" @change="handleChange(3)">
+                                Срок Годности
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="materialCheckbox" @change="handleChange(4)">
+                                Материал
+                            </label>
+                            <label>
+                                <input type="checkbox" v-model="storageConditionsCheckbox" @change="handleChange(5)">
+                                Условия Хранения
+                            </label>
+                        </div>
+                        <div class="product-zone">
+                            <div v-for="product in products" :key="product.id" class="product-item">
+                                <div class="product-list">
+                                    <div class="product-name-container">
+                                        <p>{{ product.name }}</p>
+                                    </div>
+                                    <div class="counter">
+                                        <button @click="decrement(product),fetchTotalPrice()">-</button>
+                                        <span style="padding: 0px 10px 0px 10px;">{{ product.count }}</span>
+                                        <button @click="increment(product),fetchTotalPrice()" :disabled="product.count >= product.maxCount">+</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="counter">
+                            <button @click="prevpage()"><</button>
+                            <span style="padding: 0px 10px 0px 10px;">{{ page }}</span>
+                            <button @click="nextpage()">></button>
+                        </div>
+                        
+                        <button class="button" @click="createOrderJson()" v-if="totalPrice !== null" style="margin: 10px; ">
+
+  
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"></path>
+                            </svg>
+                            <div class="text">
+                                {{ totalPrice }}р.
+                            </div>
+                          </button>
+
+                        <!-- <button @click="createOrderJson()" style="color: rgb(3, 255, 3); margin: 10px; " v-if="totalPrice !== null">
+                            {{ totalPrice }}р.
+                        </button> -->
+                        <span v-else style="margin: 10px;">
+                            Выберите товар...
+                        </span>
+                    </div>
+            
+                    <div v-else-if="currentWindow === 4" class="container">
+                        <h2>Новый товар</h2>
+                        <div class="product-create-name">
+                            <div class="textInputWrapper">
+                                <input placeholder="Название" type="text" class="textInput" v-model="productName">
+                            </div>
+                            <!-- <input placeholder="Название" class="product-name-container"  v-model="productName" style="width: 120px;"> -->
+                            <div class="counter">
+                                <button @click="decr()">-</button>
+                                <input v-model="productCount" type="text" style="width: 15px;text-align: center;" readonly>
+                                <button @click="incr()">+</button>
+                            </div>
+                        </div>
+                        <div class="item" style="margin: -6px;">
+                            <p>Цена</p>
+                            <div class="textInputWrapper">
+                                <input placeholder="Стоимость" type="text" @input="validateInput"  class="textInput" v-model="productPrice" >
+                            </div>
+                            <!-- <input placeholder="Стоимость" type="text" @input="validateInput" class="item" v-model="productPrice" style="width: 50px;"> -->
+                        </div>
+                        <div class="textInputWrapper">
+                            <input placeholder="Описание" type="text" class="textInput" v-model="productDescription">
+                        </div>
+                        <div class="textInputWrapper">
+                            <input placeholder="Вес" type="text" class="textInput" v-model="weight">
+                        </div>
+                        <div class="textInputWrapper">
+                            <input placeholder="Цвет" type="text" class="textInput" v-model="color">
+                        </div>
+                        <div class="date" style="margin: 8px;">
+                            <p>Срок Годности</p>
+                            <div class="textInputWrapper">
+                                <input type="date" class="textInput" v-model="expiryDate">
+                            </div>
+                        </div>
+                        <div class="textInputWrapper">
+                            <input placeholder="Материал" type="text" class="textInput" v-model="material">
+                        </div>
+                        <div class="textInputWrapper">
+                            <input placeholder="Условия хранения" type="text" class="textInput" v-model="storageConditions">
+                        </div>
+                        <!-- <input placeholder="Описание" class="item" v-model="productDescription"> -->
+                        <!-- <input placeholder="Вес" class="item" v-model="weight"> -->
+                        <!-- <input placeholder="Цвет" class="item" v-model="color"> -->
+                        <!-- <div class="date">
+                            <p>Срок Годности</p>
+                            <input type="date" class="item" v-model="expiryDate">
+                        </div> -->
+                        <!-- <input placeholder="Материал" class="item" v-model="material"> -->
+                        <!-- <input placeholder="Условия хранения" class="item" v-model="storageConditions"> -->
+                        <button class="buttonnew"  style="margin: 10px;" @click="submitProduct">
+                            <span class="circle1"></span>
+                            <span class="circle2"></span>
+                            <span class="circle3"></span>
+                            <span class="circle4"></span>
+                            <span class="circle5"></span>
+                            <span class="text">ПОДТВЕРДИТЬ</span>
+                        </button>
+                        <!-- <button style="color: rgb(0, 255, 0); " @click="submitProduct">ПОДТВЕРДИТЬ</button> -->
+                    </div>
+            
+                    <div v-else-if="currentWindow === 5" class="container">
+                        <h2>Информация о заказе</h2>
+                        <p>Дата: {{ formatDate(selectedOrder.date) }}</p>
+                        <p>Номер заказа: {{ selectedOrder.id }}</p>
+                        <p>Сумма заказа: {{ selectedOrder.totalPrice }}</p>
+                        <p>Список товаров:</p>
+                        <p>Список товаров:</p>
+                        <ul>
+                        <li v-for="(item, index) in selectedOrder.productList.split('\n')" :key="index" v-if="item.trim() !== ''">
+                            {{ item }}
+                            <span v-if="index !== selectedOrder.productList.split('\n').length - 1"><br></span>
+                        </li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="button-zone">
+        <button class="button" @click="showWindow(1)">
+
+  
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"></path>
+            </svg>
+          
+            
+            <div class="text">
+                Add
+            </div>
+          
+          </button>
+
+          <button class="button" @click="showWindow(2)">
+
+  
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"></path>
+            </svg>
+          
+            
+            <div class="text">
+                Orders
+            </div>
+          
+          </button>
+
+          <button class="button" @click="showWindow(3)">
+
+  
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"></path>
+            </svg>
+          
+            
+            <div class="text">
+                Buy
+            </div>
+          
+          </button>
+    </div>
+
+    
+</div>
+
+<script src="app.js"></script>
+
+</body>
+</html>
+
